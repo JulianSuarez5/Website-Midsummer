@@ -1,0 +1,50 @@
+---
+/**
+ * Bloque de propuesta de valor.
+ *
+ * Los cuatro puntos repiten la misma estructura (icono, título, texto) para
+ * que la vista se lea como una retícula y no como cuatro párrafos sueltos.
+ * El contenido llega del CMS; aquí solo está el orden y la jerarquía.
+ */
+import Container from '../components/ui/Container.astro';
+import Icon from '../components/ui/Icon.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Antetítulo. Lo define la página que usa la sección, no el componente. */
+  eyebrow?: string;
+  items: readonly { title: string; summary: string }[];
+}
+
+const { title, description, eyebrow, items } = Astro.props;
+
+const icons = ['leaf', 'shield', 'sun', 'arrow-up-right'] as const;
+---
+
+<section class="py-16 sm:py-20">
+  <Container>
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title}
+      description={description}
+      class="reveal"
+    />
+
+    <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {items.map((item, index) => (
+        <li class="reveal rounded-lg border border-border bg-surface p-5">
+          <span
+            class="flex h-10 w-10 items-center justify-center rounded-md bg-brand-50 text-accent"
+            aria-hidden="true"
+          >
+            <Icon name={icons[index % icons.length]} />
+          </span>
+          <h3 class="mt-4 text-base">{item.title}</h3>
+          <p class="mt-2 text-sm text-muted-foreground">{item.summary}</p>
+        </li>
+      ))}
+    </ul>
+  </Container>
+</section>

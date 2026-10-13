@@ -1,0 +1,45 @@
+---
+/**
+ * Navegación principal de escritorio.
+ *
+ * Se marca `aria-current="page"` en el enlace activo: es lo que permite a un
+ * lector de pantalla saber dónde está, algo que el color por sí solo no dice.
+ */
+import type { NavItem } from '../../config/nav.config';
+
+interface Props {
+  items: readonly NavItem[];
+  currentPath: string;
+}
+
+const { items, currentPath } = Astro.props;
+
+function isCurrent(href: string): boolean {
+  if (href === '/') return currentPath === '/';
+  return currentPath.startsWith(href);
+}
+---
+
+<nav aria-label="Navegación principal">
+  <ul class="flex items-center gap-1">
+    {items.map((item) => {
+      const current = isCurrent(item.href);
+      return (
+        <li>
+          <a
+            href={item.href}
+            aria-current={current ? 'page' : undefined}
+            class:list={[
+              'inline-block rounded-md px-3 py-2 text-sm font-medium no-underline transition-colors duration-150',
+              current
+                ? 'bg-brand-50 text-accent'
+                : 'text-neutral-700 hover:bg-neutral-100 hover:text-foreground',
+            ]}
+          >
+            {item.label}
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</nav>

@@ -1,0 +1,42 @@
+# Salida de build
+dist/
+# Tipos generados por Astro
+.astro/
+
+# Dependencias
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Variables de entorno.
+# .env contiene la credencial de lectura del CMS: nunca se versiona.
+# La plantilla .env.example sí se versiona.
+.env
+.env.*
+!.env.example
+
+# Instalación local de WordPress: núcleo descargado, configuración con
+# credenciales de desarrollo y base de datos SQLite. Se regenera con
+# `npm run cms:install`, así que no se versiona. El plugin de Midsummer
+# sí se versiona: vive en wordpress/midsummer-content/.
+.wordpress/
+
+# Cobertura de pruebas
+coverage/
+
+# Editores y sistema operativo
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Documento de trabajo interno. Además es un PDF con la extensión .docx
+# equivocada, así que ni git ni un editor de texto lo interpretan bien.
+# Ver docs/handoff.md.
+Propuesta_Sitio web_Midsummer_Colombia.docx

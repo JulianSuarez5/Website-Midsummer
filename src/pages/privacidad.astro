@@ -1,0 +1,66 @@
+---
+/**
+ * Aviso de privacidad.
+ *
+ * El texto legal lo redacta la asesoría de Midsummer, no el equipo técnico.
+ * Este archivo reserva la estructura (titulares de la Ley 1581 de 2012) y
+ * señala cada dato que falta, en lugar de redactar una política inventada: una
+ * política de privacidad aproximada es un riesgo, no un borrador.
+ *
+ * Mientras no exista el texto aprobado, la página se marca `noindex` para que
+ * un borrador no aparezca en resultados de búsqueda.
+ */
+import BaseLayout from '../components/layout/BaseLayout.astro';
+import ContentSection from '../sections/ContentSection.astro';
+import Container from '../components/ui/Container.astro';
+import StateBlock from '../components/content/StateBlock.astro';
+import { buildMeta } from '../lib/seo/meta';
+
+const path = '/privacidad/';
+
+const meta = buildMeta({
+  path,
+  title: 'Aviso de privacidad',
+  description: 'Tratamiento de datos personales de Midsummer Colombia.',
+  seo: { noindex: true },
+});
+---
+
+<BaseLayout meta={meta} path={path}>
+  <section class="border-b border-border bg-surface">
+    <Container class="py-10 sm:py-14">
+      <h1 class="max-w-3xl text-3xl sm:text-4xl">Aviso de privacidad</h1>
+      <p class="mt-4 max-w-prose text-lg text-muted-foreground">
+        Cómo tratamos los datos personales que llegan por este sitio.
+      </p>
+    </Container>
+  </section>
+
+  <Container class="py-14 sm:py-18">
+    <StateBlock
+      title="Texto legal pendiente"
+      description="Midsummer debe entregar el aviso de privacidad revisado por su asesoría legal. Se publicará aquí sin cambios y con la fecha de vigencia."
+    />
+  </Container>
+
+  <ContentSection
+    eyebrow="Alcance"
+    title="Qué datos recibe el sitio"
+    level={2}
+    pendingText="Qué datos se recogen por el formulario de contacto, con qué finalidad y por cuánto tiempo se conservan."
+  />
+
+  <ContentSection
+    eyebrow="Derechos"
+    title="Derechos del titular"
+    level={2}
+    pendingText="Cómo se ejercen los derechos de conocer, acceder, rectificar, suprimir y portabilidad, y ante quién se dirigen."
+  />
+
+  <ContentSection
+    eyebrow="Responsable"
+    title="Responsable y contacto"
+    level={2}
+    pendingText="Datos de la sociedad responsable del tratamiento y canal de contacto para el ejercicio de derechos."
+  />
+</BaseLayout>

@@ -1,0 +1,64 @@
+{
+  "name": "midsummer-colombia",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sitio corporativo de Midsummer Colombia. Frontend Astro con WordPress como CMS headless.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check": "astro check",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "cms:install": "node tools/run-php.mjs tools/install-wordpress.php",
+    "cms:setup": "node tools/run-php.mjs tools/setup-wordpress.php",
+    "cms:inspect": "node tools/run-php.mjs tools/inspect-wordpress.php",
+    "cms:check-language": "node tools/run-php.mjs tools/check-language.php",
+    "cms:check-admin": "node tools/run-php.mjs tools/check-admin-language.php",
+    "cms:sync": "node tools/sync-plugin.mjs",
+    "cms:receiver": "node tools/run-php.mjs -S localhost:8099 tools/receiver.php",
+    "cms:webhook-test": "node tools/run-php.mjs tools/test-build-hook.php http://localhost:8099/build-hook",
+    "cms:dev": "node tools/run-php.mjs -S localhost:8080 -t .wordpress/wordpress .wordpress/wordpress/router.php",
+    "verify": "npm run check && npm run lint && npm run format:check && npm run test && npm run build"
+  },
+  "dependencies": {
+    "@astrojs/react": "^7.0.0",
+    "@astrojs/sitemap": "^3.7.4",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "astro": "^7.3.5",
+    "leaflet": "^1.9.4",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.3",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@eslint/js": "^10.0.1",
+    "@types/leaflet": "^1.9.22",
+    "eslint": "^10.11.0",
+    "eslint-plugin-astro": "^1.7.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.9",
+    "prettier-plugin-astro": "^1.1.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.1",
+    "vitest": "^5.0.2"
+  },
+  "allowScripts": {
+    "esbuild": true
+  }
+}

@@ -1,0 +1,114 @@
+---
+/**
+ * Ficha de una noticia.
+ *
+ * Emite `Article` solo si hay fecha e imagen: un Article sin `datePublished`
+ * ni `image` no aporta nada y ocupa espacio en los resultados de búsqueda.
+ */
+import BaseLayout from '../../components/layout/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import JsonLd from '../../components/seo/JsonLd.astro';
+import PageHero from '../../sections/PageHero.astro';
+import StateBlock from '../../components/content/StateBlock.astro';
+import { buildMeta } from '../../lib/seo/meta';
+import { articleSchema, breadcrumbSchema } from '../../lib/seo/jsonld';
+import { content } from '../../lib/cms/queries';
+import type { NewsPost } from '../../lib/cms/types';
+
+export async function getStaticPaths() {
+  const posts = await content.listNews(100);
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: NewsPost;
+}
+
+const { post } = Astro.props;
+
+const path = `/noticias/${post.slug}/`;
+
+const meta = buildMeta({
+  path,
+  title: post.title,
+  description: post.excerpt,
+  seo: post.seo,
+  ogImage: post.image?.url ?? null,
+  publishedTime: post.publishedAt,
+});
+
+const breadcrumb = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Noticias', path: '/noticias/' },
+  { name: post.title, path },
+];
+
+const hasBody = typeof post.body === 'string' && post.body.trim().length > 0;
+
+const article = articleSchema({
+  title: post.title,
+  description: post.excerpt,
+  path,
+  publishedAt: post.publishedAt,
+  image: post.image?.url ?? null,
+});
+---
+
+<BaseLayout meta={meta} path={path}>
+  <Fragment slot="head">
+    <JsonLd data={breadcrumbSchema(breadcrumb)} />
+    {article && <JsonLd data={article} />}
+  </Fragment>
+
+  <PageHero title={post.title} description={post.excerpt} breadcrumb={breadcrumb}>
+    {post.publishedAt && (
+      <p class="mt-4 text-sm text-muted-foreground">
+        <time datetime={post.publishedAt}>
+          {new Date(post.publishedAt).toLocaleDateString('es-CO', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </time>
+      </p>
+    )}
+  </PageHero>
+
+  <article class="py-14 sm:py-18">
+    <Container width="prose">
+      {post.image && (
+        <img
+          src={post.image.url}
+          alt={post.image.alt}
+          width={post.image.width ?? undefined}
+          height={post.image.height ?? undefined}
+          decoding="async"
+          class="aspect-wide mb-10 w-full rounded-lg object-cover"
+        />
+      )}
+
+      {hasBody ? (
+        <div class="prose-content" set:html={post.body} />
+      ) : (
+        <StateBlock
+          title="Noticia sin contenido"
+          description="Midsummer debe publicar el texto completo de esta noticia."
+        />
+      )}
+
+      {post.tags.length > 0 && (
+        <ul class="mt-10 flex flex-wrap gap-2">
+          {post.tags.map((tag) => (
+            <li class="rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-700">
+              {tag}
+            </li>
+          ))}
+        </ul>
+      )}
+    </Container>
+  </article>
+</BaseLayout>

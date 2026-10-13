@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Midsummer">
+  <!--
+    MARCA PROVISIONAL.
+
+    Es un marcador de posición, no el logotipo de Midsummer. Existe para que el
+    sitio no referencie el favicon de la plantilla de Astro. Se reemplaza por
+    el archivo oficial en cuanto Midsummer entregue la identidad visual.
+  -->
+  <rect width="128" height="128" rx="28" fill="#2a4e37" />
+  <path
+    d="M40 94 V36 L64 66 L88 36 V94"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="11"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

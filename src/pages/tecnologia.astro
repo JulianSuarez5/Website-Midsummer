@@ -1,0 +1,80 @@
+---
+/**
+ * Página de tecnología.
+ *
+ * Objetivo: explicar la propuesta tecnológica de Midsummer de forma verificable.
+ *
+ * El sitio público de Suecia describe la celda sin silicio, el peso por metro
+ * cuadrado, la huella de carbono y la reciclabilidad del producto. Esas cifras
+ * son de la casa matriz: publicarlas aquí sin confirmación de Midsummer Colombia
+ * sería afirmar en su nombre algo que no está aprobado. Los bloques quedan
+ * estructurados con su marcador de pendiente para que Midsummer entregue aquí
+ * la metodología y los datos que sí puede sostener.
+ */
+import BaseLayout from '../components/layout/BaseLayout.astro';
+import ContentSection from '../sections/ContentSection.astro';
+import CtaSection from '../sections/CtaSection.astro';
+import JsonLd from '../components/seo/JsonLd.astro';
+import PageHero from '../sections/PageHero.astro';
+import { PRIMARY_NAV } from '../config/nav.config';
+import { buildMeta } from '../lib/seo/meta';
+import { breadcrumbSchema } from '../lib/seo/jsonld';
+
+const path = '/tecnologia/';
+const navItem = PRIMARY_NAV.find((item) => item.href === path);
+const label = navItem?.label ?? 'Tecnología';
+
+const meta = buildMeta({
+  path,
+  title: label,
+  description: navItem?.description,
+});
+
+const breadcrumb = [
+  { name: 'Inicio', path: '/' },
+  { name: label, path },
+];
+---
+
+<BaseLayout meta={meta} path={path}>
+  <Fragment slot="head">
+    <JsonLd data={breadcrumbSchema(breadcrumb)} />
+  </Fragment>
+
+  <PageHero
+    title={label}
+    description={navItem?.description}
+    breadcrumb={breadcrumb}
+    pendingNote="Contenido técnico pendiente de entrega y aprobación por Midsummer."
+  />
+
+  <ContentSection
+    eyebrow="Fundamento"
+    title="La celda fotovoltaica"
+    level={2}
+    pendingText="Descripción técnica de la celda: material, ausencia de silicio y cómo se convierte en electricidad."
+  />
+
+  <ContentSection
+    eyebrow="Comparación"
+    title="Diferencias frente a una instalación tradicional"
+    level={2}
+    pendingText="Comparación técnica contra paneles de silicio. Cada cifra debe venir con su condición de medición y con la fuente de la casa matriz."
+  />
+
+  <ContentSection
+    eyebrow="Sostenibilidad"
+    title="Huella de carbono y reciclabilidad"
+    level={2}
+    pendingText="Metodología del cálculo de huella de carbono y del porcentaje reciclable, con los límites del estudio."
+  />
+
+  <ContentSection
+    eyebrow="Instalación"
+    title="Montaje, peso y aplicaciones"
+    level={2}
+    pendingText="Peso por metro cuadrado, tipo de cubierta admitida, tiempos de instalación y aplicaciones recomendadas."
+  />
+
+  <CtaSection />
+</BaseLayout>

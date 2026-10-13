@@ -1,0 +1,56 @@
+---
+/**
+ * Sección principal (hero) de la portada.
+ *
+ * Un solo `h1` en toda la página, definido aquí. El resto de secciones usan
+ * `h2` o `h3` según su nivel, para que la jerarquía de encabezados refleje
+ * la estructura real del contenido.
+ *
+ * Sin imagen de fondo decorativa ni gradientes: el fondo es una superficie
+ * limpia y el peso visual lo lleva la tipografía y el espacio en blanco.
+ */
+import Button from '../components/ui/Button.astro';
+import Container from '../components/ui/Container.astro';
+import ContentPending from '../components/content/ContentPending.astro';
+import { SITE } from '../config/site.config';
+---
+
+<section class="border-b border-border bg-brand-50">
+  <Container class="py-16 sm:py-20 lg:py-28">
+    <div class="max-w-3xl">
+      <p class="text-xs font-semibold tracking-[0.14em] text-accent uppercase">
+        {SITE.name} {SITE.market}
+      </p>
+
+      <h1 class="mt-4 text-4xl sm:text-5xl">
+        <!--
+          Texto provisional. La propuesta de valor real la debe aprobar
+          Midsummer; no se redacta aquí para no convertir una suposición en
+          un claim comercial.
+        -->
+        Energía solar para <span class="text-accent">Colombia</span>
+      </h1>
+
+      <p class="mt-5 max-w-prose text-lg text-neutral-700">
+        PENDIENTE: MIDSUMMER DEBE PROPORCIONAR el mensaje principal. Debe responder en
+        una frase qué es Midsummer, qué resuelve y para quién.
+      </p>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <Button href="/proyectos/" size="lg">
+          Ver proyectos en Colombia
+        </Button>
+        <Button href="/contacto/" variant="outline" size="lg">
+          Contactar al equipo
+        </Button>
+      </div>
+
+      <div class="mt-8">
+        <ContentPending
+          display="inline"
+          text="Propuesta de valor pendiente de aprobación por Midsummer"
+        />
+      </div>
+    </div>
+  </Container>
+</section>

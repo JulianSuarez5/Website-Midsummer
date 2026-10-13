@@ -1,0 +1,154 @@
+/*
+ * Tokens de diseño — Midsummer Colombia
+ * ======================================
+ *
+ * PROVISIONAL: ninguno de estos valores ha sido aprobado por Midsummer.
+ * Están derivados de un análisis técnico del sitio público de la casa matriz
+ * (https://midsummer.se/), del que se confirmó:
+ *   - Tipografía: Metropolis (9 pesos, auto-hospedada)
+ *   - Un color de fondo observado: #DFE9E1 (verde salvia muy claro)
+ *
+ * TODO: MIDSUMMER DEBE PROPORCIONAR el manual de marca, el logo vectorial y
+ * los archivos .woff2 de Metropolis con su licencia.
+ *
+ * Para re-tematizar el sitio completo basta con editar este archivo.
+ */
+
+@theme {
+  /* ── Tipografía ────────────────────────────────────────────────
+   * Metropolis no está en este repositorio. El fallback de sistema
+   * mantiene una jerarquía legible hasta que se incorporen los archivos.
+   */
+  --font-sans:
+    'Metropolis', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+  --font-display: var(--font-sans);
+
+  /* Escala tipográfica. Razón ~1.2 (minor third) sobre una base de 1rem.
+   * Mobile-first: el tamaño base se ajusta por breakpoint, no por componente. */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: clamp(1.125rem, 1.05rem + 0.35vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1.12rem + 0.6vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 1.3rem + 0.9vw, 1.875rem);
+  --text-3xl: clamp(1.875rem, 1.55rem + 1.5vw, 2.5rem);
+  --text-4xl: clamp(2.25rem, 1.7rem + 2.6vw, 3.5rem);
+  --text-5xl: clamp(2.75rem, 1.9rem + 4vw, 4.5rem);
+
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.75;
+
+  /* ── Color ─────────────────────────────────────────────────────
+   * PROVISIONAL. Escala neutra fría + un verde de marca y un acento
+   * solar. Todos los pares texto/fondo de abajo superan 4.5:1 (WCAG AA).
+   * Al recibir la paleta oficial, reemplazar solo este bloque. */
+  --color-neutral-50: #f7f8f7;
+  --color-neutral-100: #eef0ef;
+  --color-neutral-200: #dfe2e1;
+  --color-neutral-300: #c4cac8;
+  --color-neutral-400: #8d9793;
+  --color-neutral-500: #64706b;
+  --color-neutral-600: #4a544f;
+  --color-neutral-700: #363e3a;
+  --color-neutral-800: #222825;
+  --color-neutral-900: #141816;
+  --color-neutral-950: #0b0e0d;
+
+  /* Verde de marca. --color-brand-50 coincide con el #DFE9E1 observado
+   * en el sitio de Suecia; el resto de la rampa es provisional. */
+  --color-brand-50: #dfe9e1;
+  --color-brand-100: #c6d8c9;
+  --color-brand-200: #9dbca4;
+  --color-brand-300: #6f9a7a;
+  --color-brand-400: #4b7a5a;
+  --color-brand-500: #366345;
+  --color-brand-600: #2a4e37;
+  --color-brand-700: #223e2d;
+  --color-brand-800: #1c3125;
+  --color-brand-900: #17271e;
+
+  /* Acento solar: usado con moderación (CTA, foco, datos highlighted). */
+  --color-solar-100: #fdf0d5;
+  --color-solar-200: #fbdfa8;
+  --color-solar-300: #f7c86c;
+  --color-solar-400: #f0ad35;
+  --color-solar-500: #d98e1c;
+  --color-solar-600: #b46c13;
+  --color-solar-700: #8c5113;
+  --color-solar-800: #734215;
+  --color-solar-900: #5f3816;
+
+  /* Semánticos. Derivados de las rampas anteriores. */
+  --color-background: var(--color-neutral-50);
+  --color-surface: #ffffff;
+  --color-surface-muted: var(--color-neutral-100);
+  --color-foreground: var(--color-neutral-900);
+  --color-muted-foreground: var(--color-neutral-600);
+  --color-border: var(--color-neutral-200);
+  --color-border-strong: var(--color-neutral-300);
+
+  --color-accent: var(--color-brand-600);
+  --color-accent-hover: var(--color-brand-700);
+  --color-accent-contrast: #ffffff;
+
+  --color-focus: var(--color-solar-500);
+  --color-danger: #b3261e;
+  --color-success: #2e6b3e;
+
+  /* ── Espaciado ────────────────────────────────────────────────
+   * Escala de 4px. Se usa spacing o tokens de Tailwind, no valores sueltos. */
+  --spacing: 0.25rem;
+
+  /* ── Radios ─────────────────────────────────────────────────── */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* ── Sombras ───────────────────────────────────────────────────
+   * Sutiles por defecto. Sombras intensas se leen como "demo de plantilla". */
+  --shadow-xs: 0 1px 2px 0 rgb(20 24 22 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(20 24 22 / 0.07), 0 1px 2px -1px rgb(20 24 22 / 0.05);
+  --shadow-md:
+    0 4px 12px -2px rgb(20 24 22 / 0.08), 0 2px 6px -2px rgb(20 24 22 / 0.05);
+  --shadow-lg:
+    0 12px 28px -6px rgb(20 24 22 / 0.12), 0 6px 12px -6px rgb(20 24 22 / 0.06);
+
+  /* ── Breakpoints ──────────────────────────────────────────────
+   * Tailwind v4 es mobile-first: el estilo base es el móvil y cada
+   * breakpoint amplía. `sm` es el punto en que deja de ser inevitable
+   * el apilado de columnas. */
+  --breakpoint-sm: 40rem; /*  640px */
+  --breakpoint-md: 48rem; /*  768px — objetivo de revisión en tablet */
+  --breakpoint-lg: 64rem; /* 1024px — pasa a navegación horizontal */
+  --breakpoint-xl: 80rem; /* 1280px */
+  --breakpoint-2xl: 96rem; /* 1536px */
+
+  /* ── Movimiento ───────────────────────────────────────────────
+   * Una sola duración y una sola curva. Todo el movimiento del sitio
+   * sale de aquí, lo que hace que "respetar reduced motion" sea trivial. */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+}
+
+:root {
+  /* Anchos de contenido. Contenedores angostos para texto, anchos para grid. */
+  --container-prose: 68ch;
+  --container-content: 75rem;
+  --container-wide: 90rem;
+
+  /* Alto de encabezado para el offset de anclas. */
+  --header-height: 4rem;
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --header-height: 4.5rem;
+  }
+}

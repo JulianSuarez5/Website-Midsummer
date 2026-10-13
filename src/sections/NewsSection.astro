@@ -1,0 +1,51 @@
+---
+/**
+ * Sección de noticias en la portada.
+ */
+import type { NewsPost } from '../lib/cms/types';
+import Container from '../components/ui/Container.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import Button from '../components/ui/Button.astro';
+import StateBlock from '../components/content/StateBlock.astro';
+import NewsCard from '../features/news/NewsCard.astro';
+
+interface Props {
+  posts: readonly NewsPost[];
+}
+
+const { posts } = Astro.props;
+---
+
+<section class="border-t border-border bg-surface py-16 sm:py-20">
+  <Container>
+    <SectionHeader
+      eyebrow="Novedades"
+      title="Noticias"
+      description="MIDSUMMER DEBE PROPORCIONAR los comunicados y novedades de Midsummer Colombia."
+      level={2}
+      class="reveal"
+    >
+      {posts.length > 0 && (
+        <div class="mt-2">
+          <Button href="/noticias/" variant="outline" size="sm">
+            Ver todas las noticias
+          </Button>
+        </div>
+      )}
+    </SectionHeader>
+
+    {posts.length === 0 ? (
+      <div class="mt-10">
+        <StateBlock />
+      </div>
+    ) : (
+      <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post) => (
+          <li class="reveal">
+            <NewsCard post={post} />
+          </li>
+        ))}
+      </ul>
+    )}
+  </Container>
+</section>

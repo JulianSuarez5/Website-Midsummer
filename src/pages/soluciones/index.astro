@@ -1,0 +1,65 @@
+---
+/**
+ * Listado de soluciones.
+ *
+ * Los datos vienen del CMS: si no hay soluciones publicadas se muestra el
+ * estado vacío, no un catálogo de ejemplo. El orden lo define el campo
+ * `order` del CMS, no la posición del archivo.
+ */
+import BaseLayout from '../../components/layout/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import JsonLd from '../../components/seo/JsonLd.astro';
+import PageHero from '../../sections/PageHero.astro';
+import SolutionCard from '../../features/solutions/SolutionCard.astro';
+import StateBlock from '../../components/content/StateBlock.astro';
+import { PRIMARY_NAV } from '../../config/nav.config';
+import { buildMeta } from '../../lib/seo/meta';
+import { breadcrumbSchema } from '../../lib/seo/jsonld';
+import { content } from '../../lib/cms/queries';
+
+const path = '/soluciones/';
+const navItem = PRIMARY_NAV.find((item) => item.href === path);
+const label = navItem?.label ?? 'Soluciones';
+
+const meta = buildMeta({
+  path,
+  title: label,
+  description: navItem?.description,
+});
+
+const breadcrumb = [
+  { name: 'Inicio', path: '/' },
+  { name: label, path },
+];
+
+const solutions = [...(await content.listSolutions())].sort(
+  (a, b) => a.order - b.order,
+);
+---
+
+<BaseLayout meta={meta} path={path}>
+  <Fragment slot="head">
+    <JsonLd data={breadcrumbSchema(breadcrumb)} />
+  </Fragment>
+
+  <PageHero title={label} description={navItem?.description} breadcrumb={breadcrumb} />
+
+  <section class="py-14 sm:py-18">
+    <Container>
+      {solutions.length > 0 ? (
+        <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {solutions.map((solution) => (
+            <li>
+              <SolutionCard solution={solution} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <StateBlock
+          title="Sin soluciones publicadas"
+          description="Esta sección se completará cuando Midsummer publique las líneas de producto disponibles en Colombia."
+        />
+      )}
+    </Container>
+  </section>
+</BaseLayout>

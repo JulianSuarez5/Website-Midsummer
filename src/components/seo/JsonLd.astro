@@ -1,0 +1,24 @@
+---
+/**
+ * Etiqueta de datos estructurados de la página.
+ *
+ * Envuelve `serializeJsonLd` para que cada página no tenga que acordarse de
+ * escapar el JSON: una `</script>` sin escapar dentro del bloque rompe el
+ * documento y con él el JSON-LD de toda la página.
+ *
+ * Igual que en `SeoHead`, no se emite en desarrollo: apuntaría a rutas que no
+ * existen para un buscador.
+ */
+import { serializeJsonLd } from '../../lib/seo/jsonld';
+
+interface Props {
+  /** Objeto schema.org ya construido. */
+  data: unknown;
+}
+
+const { data } = Astro.props;
+
+const jsonLd = import.meta.env.PROD ? serializeJsonLd(data) : null;
+---
+
+{jsonLd && <script type="application/ld+json" is:inline set:html={jsonLd} />}

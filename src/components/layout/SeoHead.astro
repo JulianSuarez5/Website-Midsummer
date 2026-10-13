@@ -1,0 +1,98 @@
+---
+/**
+ * Cabecera <head> con todo el SEO técnico en un solo lugar.
+ *
+ * Concentrarlo aquí evita el error clásico del sitio corporativo: páginas con
+ * title hardcodeado, sin canonical o con Open Graph distinto del contenido.
+ */
+import { SITE, absoluteUrl } from '../../config/site.config';
+import { organizationSchema, serializeJsonLd } from '../../lib/seo/jsonld';
+import type { PageMeta } from '../../lib/seo/meta';
+
+interface Props {
+  meta: PageMeta;
+  /** Imágenes de Open Graph ya resueltas a URL absoluta. */
+  ogImageFallback?: string | null;
+  /** Se agrega `noindex` en entornos no públicos (staging). */
+  noindexEnvironment?: boolean;
+}
+
+const { meta, ogImageFallback = null, noindexEnvironment = false } = Astro.props;
+
+const shouldNoIndex = meta.noindex || noindexEnvironment;
+const ogImage = meta.ogImage
+  ? absoluteUrl(meta.ogImage)
+  : ogImageFallback
+    ? absoluteUrl(ogImageFallback)
+    : null;
+
+const organization = organizationSchema();
+
+// Los datos estructurados solo se emiten en producción: en desarrollo
+// apuntarían a un sitio inexistente desde el punto de vista del buscador.
+const jsonLd = import.meta.env.PROD ? serializeJsonLd(organization) : null;
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content={Astro.generator} />
+
+<title>{meta.title}</title>
+<meta name="description" content={meta.description} />
+<link rel="canonical" href={meta.canonical} />
+
+{shouldNoIndex && <meta name="robots" content="noindex, nofollow" />}
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content={`${SITE.name} ${SITE.market}`} />
+<meta property="og:title" content={meta.title} />
+<meta property="og:description" content={meta.description} />
+<meta property="og:url" content={meta.canonical} />
+<meta property="og:locale" content={SITE.ogLocale} />
+{ogImage && <meta property="og:image" content={ogImage} />}
+{ogImage && <meta property="og:image:width" content="1200" />}
+{ogImage && <meta property="og:image:height" content="630" />}
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={meta.title} />
+<meta name="twitter:description" content={meta.description} />
+{ogImage && <meta name="twitter:image" content={ogImage} />}
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<meta name="theme-color" content="#2a4e37" />
+
+<!--
+  hreflang preparado para multiidioma. Hoy solo existe `es-CO`; cuando se
+  agregue inglés se añade el par y se activa `x-default`.
+-->
+<link rel="alternate" hreflang="es-CO" href={meta.canonical} />
+
+{jsonLd && <script type="application/ld+json" is:inline set:html={jsonLd} />}
+
+{/*
+  Datos estructurados propios de la página (miga de pan, artículo).
+  Van en el <head> como cualquier otro JSON-LD; por eso el layout expone un
+  slot con ese nombre en lugar de dejar que cada página inserte un <script>
+  dentro del <body>.
+*/}
+<slot name="head" />
+
+{/*
+    Analytics queda deliberadamente fuera del <head>.
+
+    Cargar Google Analytics o Tag Manager sin consentimiento previo es un
+    problema de protección de datos, no de rendimiento. El sitio tiene un
+    requisito de consentimiento (Ley 1581 y buenas prácticas), y ese flujo
+    todavía no existe.
+
+    Cuando se implemente el banner de consentimiento, la carga va aquí
+    condicionada a `hasConsent('analytics')` y solo con el ID de un único
+    contenedor. Ver docs/privacy.md.
+
+    Referencia: el sitio de Suecia carga hoy dos contenedores de GTM sin
+    banner. No se replica esa decisión.
+  */}

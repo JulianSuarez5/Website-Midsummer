@@ -1,0 +1,12 @@
+# Salida de build y dependencias
+dist/
+.astro/
+node_modules/
+coverage/
+
+# Núcleo de WordPress descargado: no es código nuestro y reformatearlo sería
+# una modifica local que disappears al reinstalar.
+.wordpress/
+
+# Archivos que no se formatean
+package-lock.json

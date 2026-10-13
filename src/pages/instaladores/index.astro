@@ -1,0 +1,68 @@
+---
+/**
+ * Listado de instaladores y aliados.
+ *
+ * La propuesta comercial incluye un directorio de instaladores autorizados. Los
+ * datos de contacto solo aparecen si el CMS los trae: publicarlos sin
+ * autorización de cada empresa expondría a terceros.
+ */
+import BaseLayout from '../../components/layout/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import InstallerCard from '../../features/installers/InstallerCard.astro';
+import JsonLd from '../../components/seo/JsonLd.astro';
+import PageHero from '../../sections/PageHero.astro';
+import StateBlock from '../../components/content/StateBlock.astro';
+import { PRIMARY_NAV } from '../../config/nav.config';
+import { buildMeta } from '../../lib/seo/meta';
+import { breadcrumbSchema } from '../../lib/seo/jsonld';
+import { content } from '../../lib/cms/queries';
+
+const path = '/instaladores/';
+const navItem = PRIMARY_NAV.find((item) => item.href === path);
+const label = navItem?.label ?? 'Instaladores';
+
+const meta = buildMeta({
+  path,
+  title: label,
+  description: navItem?.description,
+});
+
+const breadcrumb = [
+  { name: 'Inicio', path: '/' },
+  { name: label, path },
+];
+
+const installers = await content.listInstallers();
+---
+
+<BaseLayout meta={meta} path={path}>
+  <Fragment slot="head">
+    <JsonLd data={breadcrumbSchema(breadcrumb)} />
+  </Fragment>
+
+  <PageHero
+    title={label}
+    description={navItem?.description}
+    breadcrumb={breadcrumb}
+    pendingNote="Midsummer debe entregar la lista de instaladores autorizados y decidir si el directorio se publica con datos de contacto."
+  />
+
+  <section class="py-14 sm:py-18">
+    <Container>
+      {installers.length > 0 ? (
+        <ul class="grid gap-6 sm:grid-cols-2">
+          {installers.map((installer) => (
+            <li>
+              <InstallerCard installer={installer} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <StateBlock
+          title="Sin instaladores publicados"
+          description="Esta sección se completará cuando Midsummer entregue el directorio de instaladores y aliados con autorización de publicación."
+        />
+      )}
+    </Container>
+  </section>
+</BaseLayout>

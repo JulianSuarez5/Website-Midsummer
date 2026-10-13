@@ -1,0 +1,31 @@
+---
+/**
+ * Contenedor de contenido con control de ancho.
+ *
+ * Envuelve la clase global `.shell`. Se usa como componente y no como
+ * clase suelta para que el ancho máximo y el padding lateral tengan un solo
+ * lugar donde ajustarse.
+ *
+ * La clase se llama `shell` y no `container` porque `container` es el nombre
+ * de una utilidad propia de Tailwind v4; ver la nota en `global.css`.
+ */
+interface Props {
+  /** `prose` limita el ancho a una medida legible (texto corrido). */
+  width?: 'content' | 'wide' | 'prose';
+  as?: 'div' | 'section' | 'article' | 'header' | 'footer' | 'main';
+  class?: string;
+}
+
+const { width = 'content', as: Tag = 'div', class: extra = '' } = Astro.props;
+---
+
+<Tag
+  class:list={[
+    'shell',
+    width === 'wide' && 'shell--wide',
+    width === 'prose' && 'max-w-[var(--container-prose)]',
+    extra,
+  ]}
+>
+  <slot />
+</Tag>

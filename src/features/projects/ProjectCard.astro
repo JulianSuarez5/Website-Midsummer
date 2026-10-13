@@ -1,0 +1,96 @@
+---
+/**
+ * Tarjeta de proyecto.
+ *
+ * Muestra únicamente campos que existen. Si falta el departamento o la
+ * ubicación, se marca como pendiente en lugar de ocultar el dato o inventarlo:
+ * una ficha de proyecto sin ubicación es una alerta de contenido, no un
+ * defecto de diseño.
+ */
+import type { Project } from '../../lib/cms/types';
+import { t } from '../../lib/i18n';
+import ContentPending from '../../components/content/ContentPending.astro';
+import Icon from '../../components/ui/Icon.astro';
+
+interface Props {
+  project: Project;
+  /** `compact` se usa en listados laterales. */
+  variant?: 'default' | 'compact';
+}
+
+const { project, variant = 'default' } = Astro.props;
+
+/**
+ * Un dato que empieza por `EJEMPLO` viene del contenido de relleno, no de una
+ * fuente real. Se filtra aquí para que nunca llegue a una tarjeta.
+ */
+const isRealValue = (value: string | null | undefined): value is string =>
+  typeof value === 'string' && value.trim() !== '' && !value.startsWith('EJEMPLO');
+
+const location = [project.municipality, project.department]
+  .filter(isRealValue)
+  .join(', ');
+
+const isPending = (value: string | null | undefined) =>
+  !value || value.startsWith('EJEMPLO') || value.startsWith('CONTENIDO');
+---
+
+<article class="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface transition-shadow duration-150 hover:shadow-md">
+  <div class="relative aspect-photo overflow-hidden bg-neutral-200">
+    {project.image ? (
+      <img
+        src={project.image.url}
+        alt={project.image.alt}
+        width={project.image.width ?? undefined}
+        height={project.image.height ?? undefined}
+        loading="lazy"
+        decoding="async"
+        class="aspect-photo w-full transition-transform duration-300 group-hover:scale-[1.02]"
+      />
+    ) : (
+      <div class="flex aspect-photo w-full items-center justify-center text-neutral-400">
+        <Icon name="sun" class="h-8 w-8" />
+      </div>
+    )}
+  </div>
+
+  <div class:list={['flex flex-1 flex-col p-5', variant === 'compact' && 'p-4']}>
+    <h3 class="text-lg">
+      <a
+        href={`/proyectos/${project.slug}/`}
+        class="text-foreground no-underline after:absolute after:inset-0 after:content-[''] hover:text-accent"
+      >
+        {project.title}
+      </a>
+    </h3>
+
+    {location ? (
+      <p class="mt-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+        <Icon name="pin" class="h-4 w-4 shrink-0" />
+        {location}
+      </p>
+    ) : (
+      <p class="mt-2 text-sm text-muted-foreground">{t.project.noCoordinates}</p>
+    )}
+
+    <p class="mt-3 line-clamp-3 text-sm text-muted-foreground">{project.summary}</p>
+
+    <div class="mt-auto pt-4">
+      <span class="text-sm font-semibold text-accent">
+        {t.actions.viewDetails}
+        <span aria-hidden="true" class="ml-1">
+          →
+        </span>
+      </span>
+
+      {isPending(project.status) && (
+        <div class="mt-3">
+          <ContentPending
+            display="inline"
+            text="Datos técnicos pendientes de aprobación"
+          />
+        </div>
+      )}
+    </div>
+  </div>
+</article>

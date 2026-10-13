@@ -1,0 +1,74 @@
+---
+/**
+ * Tarjeta de solución / producto.
+ */
+import type { Solution } from '../../lib/cms/types';
+import Button from '../../components/ui/Button.astro';
+import ContentPending from '../../components/content/ContentPending.astro';
+
+interface Props {
+  solution: Solution;
+}
+
+const { solution } = Astro.props;
+
+const isPendingTitle = solution.title.startsWith('[');
+---
+
+<article class="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface transition-shadow duration-150 hover:shadow-md">
+  <div class="aspect-wide overflow-hidden bg-neutral-200">
+    {solution.image ? (
+      <img
+        src={solution.image.url}
+        alt={solution.image.alt}
+        width={solution.image.width ?? undefined}
+        height={solution.image.height ?? undefined}
+        loading="lazy"
+        decoding="async"
+        class="aspect-wide w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+      />
+    ) : (
+      <div class="flex aspect-wide w-full items-center justify-center bg-brand-50" />
+    )}
+  </div>
+
+  <div class="flex flex-1 flex-col p-5">
+    <h3 class="text-lg">
+      {/*
+        El título es el enlace a la ficha. Un título que no lleva a la ficha
+        deja `/soluciones/[slug]/` sin ningún enlace interno: la página existe
+        para buscadores, pero un visitante nunca llega a ella.
+      */}
+      <a
+        href={`/soluciones/${solution.slug}/`}
+        class="hover:text-accent hover:underline"
+      >
+        {isPendingTitle ? (
+          <ContentPending display="block" text={solution.title} />
+        ) : (
+          solution.title
+        )}
+      </a>
+    </h3>
+
+    <p class="mt-2 line-clamp-4 text-sm text-muted-foreground">{solution.summary}</p>
+
+    {solution.applications.length > 0 && (
+      <ul class="mt-4 flex flex-wrap gap-1.5">
+        {solution.applications.map((application) => (
+          <li class="rounded-full bg-neutral-100 px-2.5 py-1 text-xs text-neutral-700">
+            {application}
+          </li>
+        ))}
+      </ul>
+    )}
+
+    {solution.cta && (
+      <div class="mt-auto pt-5">
+        <Button href={solution.cta.href} variant="outline" size="sm">
+          {solution.cta.label}
+        </Button>
+      </div>
+    )}
+  </div>
+</article>

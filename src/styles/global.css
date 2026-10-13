@@ -1,0 +1,479 @@
+@import './tokens.css';
+@import 'tailwindcss';
+
+/*
+ * Estilos globales — Midsummer Colombia
+ *
+ * Alcance deliberadamente reducido. Todo lo que se pueda expresar con clases
+ * de Tailwind vive en los componentes, no aquí. Este archivo solo contiene lo
+ * que no tiene un dueño natural: reset, tipografía base, foco, utilidades
+ * comunes y las reglas de accesibilidad transversal.
+ */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    /* Compensa el encabezado fijo al saltar a un ancla. */
+    scroll-padding-top: calc(var(--header-height) + 1rem);
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: var(--text-4xl);
+  }
+  h2 {
+    font-size: var(--text-3xl);
+  }
+  h3 {
+    font-size: var(--text-xl);
+  }
+  h4 {
+    font-size: var(--text-lg);
+  }
+
+  p {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  ul,
+  ol {
+    margin: 0;
+    padding: 0;
+  }
+
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Foco visible y consistente. Nunca se elimina el indicador de foco. */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Respeta la preferencia del sistema. Se aplica a TODO el movimiento,
+   * no componente por componente. Ver --duration-* en tokens.css. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Enlace de salto: primero en el DOM, visible solo con foco. */
+  .skip-link {
+    position: absolute;
+    left: 0.5rem;
+    top: 0.5rem;
+    z-index: 100;
+    transform: translateY(-200%);
+    padding: 0.625rem 1rem;
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    transition: transform var(--duration-base) var(--ease-out-quart);
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+
+  /* Contenedor de layout. Un solo control de ancho y padding lateral.
+   *
+   * Se llama `.shell` y no `.container` a propósito: Tailwind v4 trae su propia
+   * utilidad `container` y, como ambas son capa `components`, la que aparece
+   * después en el CSS gana. Con el nombre corto, los `max-width` por breakpoint
+   * de Tailwind pisaban los nuestros y `shell--wide` no se aplicaba a partir de
+   * 1280px. Nombrarla distinto elimina la colisión en lugar de pelearse con el
+   * orden de las reglas. */
+  .shell {
+    width: 100%;
+    max-width: var(--container-content);
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 40rem) {
+    .shell {
+      padding-inline: 2rem;
+    }
+  }
+
+  .shell--wide {
+    max-width: var(--container-wide);
+  }
+
+  /* Lectores de pantalla: contenido que existe para ellos. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}
+
+@layer utilities {
+  /*
+   * Entrada de secciones al hacer scroll.
+   *
+   * Se usa IntersectionObserver en src/scripts/reveal.ts en lugar de una
+   * librería de animación: son 20 líneas y ninguna dependencia.
+   * Con `prefers-reduced-motion` el elemento se muestra de inmediato
+   * (ver la regla de reduced-motion más arriba).
+   */
+  .reveal {
+    opacity: 0;
+    transform: translateY(0.75rem);
+    transition:
+      opacity var(--duration-slow) var(--ease-out-quart),
+      transform var(--duration-slow) var(--ease-out-quart);
+  }
+
+  .reveal[data-reveal='visible'] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Evita el "layout shift" de imágenes sin dimensiones declaradas. */
+  .aspect-photo {
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .aspect-wide {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+}
+
+/*
+ * Tipografía del contenido que llega del CMS.
+ * ==========================================
+ *
+ * WordPress entrega el cuerpo de las páginas ya formateado en HTML, así que los
+ * estilos no se pueden aplicar con clases de Tailwind: hace falta una hoja de
+ * estilo propia para `h2`, `p`, `ul`, `figure` y los demás elementos que puede
+ * redactar el equipo de Midsummer.
+ *
+ * Se escribe a mano y con los tokens del proyecto en lugar de instalar
+ * `@tailwindcss/typography`: son 40 líneas para los elementos que realmente
+ * se usan, y una dependencia menos en el bundle.
+ */
+@layer components {
+  .prose-content {
+    color: var(--color-foreground);
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+  }
+
+  .prose-content > * + * {
+    margin-top: var(--spacing) * 4;
+  }
+
+  .prose-content h2 {
+    margin-top: var(--spacing) * 10;
+    font-size: var(--text-2xl);
+    line-height: var(--leading-snug);
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  .prose-content h3 {
+    margin-top: var(--spacing) * 8;
+    font-size: var(--text-xl);
+    line-height: var(--leading-snug);
+    font-weight: 600;
+  }
+
+  .prose-content h4 {
+    margin-top: var(--spacing) * 6;
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+
+  /* El salto después de un encabezado ya lo pone `> * + *`; se evita
+     duplicar el margen vertical en los pares encabezado→párrafo. */
+  .prose-content :is(h2, h3, h4) + * {
+    margin-top: var(--spacing) * 3;
+  }
+
+  .prose-content a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .prose-content a:hover {
+    color: var(--color-accent-hover);
+  }
+
+  .prose-content :is(ul, ol) {
+    padding-left: var(--spacing) * 6;
+  }
+
+  .prose-content ul {
+    list-style: disc;
+  }
+
+  .prose-content ol {
+    list-style: decimal;
+  }
+
+  .prose-content li + li {
+    margin-top: var(--spacing) * 2;
+  }
+
+  .prose-content blockquote {
+    border-left: 3px solid var(--color-accent);
+    padding-left: var(--spacing) * 4;
+    font-style: italic;
+    color: var(--color-muted-foreground);
+  }
+
+  .prose-content figure {
+    margin-inline: 0;
+  }
+
+  .prose-content img {
+    height: auto;
+    border-radius: var(--radius-md);
+  }
+
+  .prose-content figcaption {
+    margin-top: var(--spacing) * 2;
+    font-size: var(--text-sm);
+    color: var(--color-muted-foreground);
+  }
+
+  .prose-content table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+
+  .prose-content :is(th, td) {
+    border: 1px solid var(--color-border);
+    padding: var(--spacing) * 3;
+    text-align: left;
+  }
+
+  .prose-content th {
+    background-color: var(--color-surface-muted);
+    font-weight: 600;
+  }
+
+  .prose-content code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    background-color: var(--color-surface-muted);
+    border-radius: var(--radius-sm);
+    padding: 0.1em 0.35em;
+  }
+
+  .prose-content hr {
+    border: 0;
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+/*
+ * Mapa de proyectos (Leaflet)
+ * ===========================
+ *
+ * El marcador es un `divIcon` sin imagen: se dibuja con los tokens de marca
+ * para poder re-tematizarlo junto al resto del sitio cuando llegue la identidad
+ * definitiva. El tooltip (al pasar el cursor) y el globo (al pulsar) también
+ * viven aquí para no mezclar presentación con el adaptador.
+ */
+@layer components {
+  .midsummer-marker {
+    background: transparent;
+    border: 0;
+  }
+
+  .midsummer-marker svg {
+    display: block;
+    width: 30px;
+    height: 40px;
+    color: var(--color-accent);
+    filter: drop-shadow(0 2px 3px rgb(20 24 22 / 0.35));
+    transform-origin: 50% 100%;
+    transition:
+      transform var(--duration-fast) var(--ease-out-quart),
+      color var(--duration-fast) var(--ease-out-quart);
+  }
+
+  .midsummer-marker:hover svg,
+  .midsummer-marker:focus-visible svg {
+    transform: scale(1.15);
+    color: var(--color-solar-500);
+  }
+
+  .midsummer-tooltip {
+    padding: 0.35rem 0.6rem;
+    border: 0;
+    border-radius: var(--radius-md);
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    box-shadow: var(--shadow-md);
+    font-size: var(--text-xs);
+    line-height: var(--leading-snug);
+  }
+
+  .midsummer-tooltip::before {
+    border-top-color: var(--color-foreground);
+  }
+
+  .midsummer-tooltip__name {
+    display: block;
+    font-weight: 600;
+  }
+
+  .midsummer-tooltip__place {
+    display: block;
+    opacity: 0.75;
+  }
+
+  .midsummer-popup {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .midsummer-popup__image {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    border-radius: var(--radius-md);
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .midsummer-popup__location {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .midsummer-popup__title {
+    margin-top: 0.15rem;
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    line-height: var(--leading-snug);
+    color: var(--color-foreground);
+  }
+
+  .midsummer-popup__summary {
+    margin-top: 0.35rem;
+    font-size: var(--text-sm);
+    color: var(--color-muted-foreground);
+  }
+
+  .midsummer-popup__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin-top: 0.5rem;
+    font-size: var(--text-sm);
+  }
+
+  .midsummer-popup__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .midsummer-popup__row dt {
+    color: var(--color-muted-foreground);
+  }
+
+  .midsummer-popup__row dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .midsummer-popup__link {
+    margin-top: 0.6rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .midsummer-popup__link:hover {
+    color: var(--color-accent-hover);
+  }
+}

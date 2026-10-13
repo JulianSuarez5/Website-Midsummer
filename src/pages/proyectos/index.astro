@@ -1,0 +1,241 @@
+---
+/**
+ * Listado de proyectos y mapa.
+ *
+ * El mapa y el listado leen el mismo listado: si un punto del mapa no aparece
+ * en la lista, el visitante no tiene forma de saber qué es.
+ *
+ * Filtros: se calculan a partir de los proyectos publicados en vez de un
+ * dominio de valores escrito a mano, para no ofrecer una opción sin resultados.
+ * El filtrado es una mejora progresiva — sin JavaScript se ven todos los
+ * proyectos, que es el estado por defecto aceptable de la página.
+ */
+import BaseLayout from '../../components/layout/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import JsonLd from '../../components/seo/JsonLd.astro';
+import PageHero from '../../sections/PageHero.astro';
+import ProjectCard from '../../features/projects/ProjectCard.astro';
+import ProjectMap from '../../features/projects/ProjectMap';
+import SectionHeader from '../../components/ui/SectionHeader.astro';
+import StateBlock from '../../components/content/StateBlock.astro';
+import { MAP } from '../../config/map.config';
+import { PRIMARY_NAV } from '../../config/nav.config';
+import { buildMeta } from '../../lib/seo/meta';
+import { breadcrumbSchema } from '../../lib/seo/jsonld';
+import { content } from '../../lib/cms/queries';
+import { toMapPoints } from '../../lib/map/types';
+import { t } from '../../lib/i18n';
+
+const path = '/proyectos/';
+const navItem = PRIMARY_NAV.find((item) => item.href === path);
+const label = navItem?.label ?? 'Proyectos';
+
+const meta = buildMeta({
+  path,
+  title: label,
+  description: navItem?.description,
+});
+
+const breadcrumb = [
+  { name: 'Inicio', path: '/' },
+  { name: label, path },
+];
+
+const projects = await content.listProjects();
+const mapPoints = toMapPoints(projects);
+
+const departments = [
+  ...new Set(projects.map((p) => p.department).filter((d) => d !== null)),
+].sort();
+const installTypes = [
+  ...new Set(projects.map((p) => p.installType).filter((i) => i !== null)),
+].sort();
+const years = [...new Set(projects.map((p) => p.year).filter((y) => y !== null))].sort(
+  (a, b) => b - a,
+);
+
+const hasFilters =
+  departments.length > 1 || installTypes.length > 1 || years.length > 1;
+---
+
+<BaseLayout meta={meta} path={path}>
+  <Fragment slot="head">
+    <JsonLd data={breadcrumbSchema(breadcrumb)} />
+  </Fragment>
+
+  <PageHero title={label} description={navItem?.description} breadcrumb={breadcrumb} />
+
+  {projects.length > 0 ? (
+    <>
+      {mapPoints.length > 0 && (
+        <section class="border-b border-border bg-surface py-14 sm:py-18">
+          <Container width="wide">
+            <SectionHeader eyebrow="Mapa" title={t.map.title} level={2} />
+            <div class="mt-8">
+              <ProjectMap
+                client:visible
+                providerName={MAP.provider}
+                points={mapPoints}
+                center={MAP.center}
+                zoom={MAP.zoom}
+                minZoom={MAP.minZoom}
+                maxZoom={MAP.maxZoom}
+                bounds={MAP.bounds}
+                tileUrl={MAP.tileUrl}
+                attribution={MAP.attribution}
+                ariaLabel="Mapa de Colombia con la ubicación de los proyectos de Midsummer"
+                noPointsMessage={t.map.noPoints}
+                listFallbackLabel="Ver proyectos como lista"
+              />
+            </div>
+          </Container>
+        </section>
+      )}
+
+      <section class="py-14 sm:py-18">
+        <Container>
+          {hasFilters && (
+            <form
+              id="filtros-proyectos"
+              class="mb-8 grid gap-4 rounded-lg border border-border bg-surface p-5 sm:grid-cols-3"
+            >
+              <div>
+                <label for="filtro-departamento" class="block text-sm font-medium">
+                  {t.project.department}
+                </label>
+                <select
+                  id="filtro-departamento"
+                  name="department"
+                  data-filter="department"
+                  class="mt-1.5 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm"
+                >
+                  <option value="">{t.project.allDepartments}</option>
+                  {departments.map((department) => (
+                    <option value={department}>{department}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label for="filtro-tipo" class="block text-sm font-medium">
+                  {t.project.installType}
+                </label>
+                <select
+                  id="filtro-tipo"
+                  name="installType"
+                  data-filter="installType"
+                  class="mt-1.5 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm"
+                >
+                  <option value="">{t.project.allTypes}</option>
+                  {installTypes.map((installType) => (
+                    <option value={installType}>{installType}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label for="filtro-anio" class="block text-sm font-medium">
+                  {t.project.year}
+                </label>
+                <select
+                  id="filtro-anio"
+                  name="year"
+                  data-filter="year"
+                  class="mt-1.5 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm"
+                >
+                  <option value="">Todos los años</option>
+                  {years.map((year) => (
+                    <option value={String(year)}>{year}</option>
+                  ))}
+                </select>
+              </div>
+
+              <p class="sm:col-span-3">
+                <button
+                  type="button"
+                  data-clear-filters
+                  class="text-sm font-medium text-accent underline underline-offset-2 hover:text-accent-hover"
+                >
+                  {t.project.clearFilters}
+                </button>
+              </p>
+            </form>
+          )}
+
+          <p class="sr-only" role="status" data-filter-status></p>
+
+          <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-project-list>
+            {projects.map((project) => (
+              <li
+                data-project
+                data-department={project.department ?? ''}
+                data-install-type={project.installType ?? ''}
+                data-year={project.year === null ? '' : String(project.year)}
+              >
+                <ProjectCard project={project} />
+              </li>
+            ))}
+          </ul>
+
+          <p class="mt-8" data-no-results hidden>
+            <StateBlock
+              title={t.states.emptyTitle}
+              description="Ningún proyecto coincide con los filtros seleccionados."
+            />
+          </p>
+        </Container>
+      </section>
+    </>
+  ) : (
+    <Container class="py-14 sm:py-18">
+      <StateBlock
+        title="Sin proyectos publicados"
+        description="Esta sección se completará cuando Midsummer publique los proyectos de Colombia con la información autorizada."
+      />
+    </Container>
+  )}
+
+  {hasFilters && projects.length > 0 && <script>
+    const form = document.getElementById('filtros-proyectos') as HTMLFormElement | null;
+    const items = Array.from(document.querySelectorAll<HTMLElement>('[data-project]'));
+    const status = document.querySelector<HTMLElement>('[data-filter-status]');
+    const noResults = document.querySelector<HTMLElement>('[data-no-results]');
+
+    if (form && items.length > 0) {
+      const selects = Array.from(
+        form.querySelectorAll<HTMLSelectElement>('select[data-filter]'),
+      );
+      const clear = form.querySelector<HTMLButtonElement>('[data-clear-filters]');
+
+      const apply = () => {
+        const active = selects
+          .map((select) => [select.dataset.filter ?? '', select.value] as const)
+          .filter(([, value]) => value !== '');
+
+        let visible = 0;
+
+        for (const item of items) {
+          const matches = active.every(([key, value]) => item.dataset[key] === value);
+          item.hidden = !matches;
+          if (matches) visible += 1;
+        }
+
+        if (noResults) noResults.hidden = visible > 0;
+        if (status) {
+          status.textContent =
+            visible === 0
+              ? 'Ningún proyecto coincide con los filtros seleccionados.'
+              : `${visible} de ${items.length} proyectos visibles.`;
+        }
+      };
+
+      for (const select of selects) select.addEventListener('change', apply);
+      clear?.addEventListener('click', () => {
+        for (const select of selects) select.value = '';
+        apply();
+      });
+
+      apply();
+    }
+  </script>}
+</BaseLayout>

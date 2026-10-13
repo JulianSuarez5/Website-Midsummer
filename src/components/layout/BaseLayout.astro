@@ -1,0 +1,90 @@
+---
+/**
+ * Layout base.
+ *
+ * Todas las páginas pasan por aquí. Define la estructura del documento, el
+ * enlace de salto, el encabezado, el punto de montaje del contenido principal
+ * y el pie. Una sola implementación de `<head>`, un solo `lang`, un solo `h1`
+ * por página (lo define la página, no el layout).
+ *
+ * La importación de `global.css` va aquí y no en cada página a propósito: es lo
+ * único que garantiza que haya un solo bundle de estilos, y que no se pueda
+ * olvidar en una página nueva. Tailwind v4 resuelve `@import 'tailwindcss'`, así
+ * que este import carga los tokens, el reset y las utilidades.
+ */
+import '../../styles/global.css';
+import SeoHead from './SeoHead.astro';
+import SiteFooter from '../navigation/SiteFooter.astro';
+import SiteHeader from '../navigation/SiteHeader.astro';
+import { SITE } from '../../config/site.config';
+import { t } from '../../lib/i18n';
+import type { PageMeta } from '../../lib/seo/meta';
+
+interface Props {
+  meta: PageMeta;
+  /** Ruta actual sin dominio, p. ej. `/proyectos/`. */
+  path: string;
+  ogImageFallback?: string | null;
+}
+
+const { meta, path, ogImageFallback = null } = Astro.props;
+
+const currentPath = Astro.url.pathname;
+const isProduction = import.meta.env.PROD;
+---
+
+<!doctype html>
+<html lang={SITE.language} class="scroll-smooth">
+  <head>
+    <SeoHead meta={meta} ogImageFallback={ogImageFallback}>
+      <slot name="head" slot="head" />
+    </SeoHead>
+  </head>
+
+  <body class="flex min-h-dvh flex-col">
+    <a href="#contenido" class="skip-link">
+      {t.common.skipToContent}
+    </a>
+
+    <SiteHeader currentPath={currentPath} />
+
+    <main id="contenido" class="flex-1">
+      <slot />
+    </main>
+
+    <SiteFooter />
+
+    <!--
+      Entrada de secciones al hacer scroll. IntersectionObserver nativo: no
+      se agrega una librería de animación al bundle por 20 líneas de código.
+      El propio observer detecta `prefers-reduced-motion` y muestra todo.
+    -->
+    <script>
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const targets = document.querySelectorAll<HTMLElement>('.reveal');
+
+      if (reduced || !('IntersectionObserver' in window)) {
+        targets.forEach((element) => element.setAttribute('data-reveal', 'visible'));
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              (entry.target as HTMLElement).setAttribute('data-reveal', 'visible');
+              observer.unobserve(entry.target);
+            }
+          },
+          { rootMargin: '0px 0px -10% 0px', threshold: 0.05 },
+        );
+
+        targets.forEach((element) => observer.observe(element));
+      }
+    </script>
+    {!isProduction && (
+      <div class="fixed bottom-3 left-3 z-50 rounded-md bg-neutral-900 px-3 py-2 text-xs text-neutral-50 shadow-lg">
+        <p class="font-semibold">Entorno de desarrollo</p>
+        <p class="mt-0.5 opacity-80">path: {path}</p>
+      </div>
+    )}
+  </body>
+</html>

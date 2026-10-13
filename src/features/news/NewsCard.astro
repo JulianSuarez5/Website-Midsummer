@@ -1,0 +1,65 @@
+---
+/**
+ * Tarjeta de noticia.
+ *
+ * La fecha solo se muestra si existe. No se usa `new Date()` como valor
+ * defecto: una noticia sin fecha no tiene fecha, y mostrar la fecha de
+ * compilación sería un dato falso.
+ */
+import type { NewsPost } from '../../lib/cms/types';
+import { t } from '../../lib/i18n';
+
+interface Props {
+  post: NewsPost;
+}
+
+const { post } = Astro.props;
+
+const published = post.publishedAt
+  ? new Date(post.publishedAt).toLocaleDateString('es-CO', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  : null;
+---
+
+<article class="group relative flex h-full flex-col rounded-lg border border-border bg-surface p-5 transition-shadow duration-150 hover:shadow-md">
+  {post.image && (
+    <div class="mb-4 aspect-wide overflow-hidden rounded-md bg-neutral-200">
+      <img
+        src={post.image.url}
+        alt={post.image.alt}
+        width={post.image.width ?? undefined}
+        height={post.image.height ?? undefined}
+        loading="lazy"
+        decoding="async"
+        class="aspect-wide w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+      />
+    </div>
+  )}
+
+  {published && (
+    <p class="flex items-center gap-1.5 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+      <time datetime={post.publishedAt}>{published}</time>
+    </p>
+  )}
+
+  <h3 class="mt-2 text-lg">
+    <a
+      href={`/noticias/${post.slug}/`}
+      class="text-foreground no-underline after:absolute after:inset-0 after:content-[''] hover:text-accent"
+    >
+      {post.title}
+    </a>
+  </h3>
+
+  <p class="mt-2 line-clamp-3 text-sm text-muted-foreground">{post.excerpt}</p>
+
+  <p class="mt-auto pt-4 text-sm font-semibold text-accent">
+    {t.common.readMore}
+    <span aria-hidden="true" class="ml-1">
+      →
+    </span>
+  </p>
+</article>

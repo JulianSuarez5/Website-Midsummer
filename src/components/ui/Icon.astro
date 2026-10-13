@@ -1,0 +1,35 @@
+---
+/**
+ * Iconos de interfaz para componentes Astro.
+ *
+ * Todos son decorativos por defecto (`aria-hidden`). Cuando un icono
+ * acompaña texto, el texto ya es la etiqueta: marcarlo otra vez duplicaría el
+ * anuncio del lector de pantalla.
+ *
+ * Para las islas React usa `Icon.tsx`, no este archivo: un componente `.astro`
+ * no se puede renderizar desde React.
+ */
+import { ICON_PATHS, isFilledIcon, type IconName } from '../../config/icons';
+
+interface Props {
+  name: IconName;
+  class?: string;
+}
+
+const { name, class: extra = '' } = Astro.props;
+const filled = isFilledIcon(name);
+---
+
+<svg
+  class:list={['h-5 w-5', extra]}
+  viewBox="0 0 24 24"
+  fill={filled ? 'currentColor' : 'none'}
+  stroke={filled ? 'none' : 'currentColor'}
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path d={ICON_PATHS[name]} />
+</svg>

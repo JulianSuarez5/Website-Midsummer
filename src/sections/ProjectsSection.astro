@@ -1,0 +1,55 @@
+---
+/**
+ * Sección de proyectos destacados en la portada.
+ *
+ * No incluye mapa: la portada muestra una selección curada y el mapa vive en
+ * `/proyectos/`. Poner un mapa interactivo en la portada competiría con el
+ * mensaje principal por la atención y añadiría JavaScript innecesario.
+ */
+import type { Project } from '../lib/cms/types';
+import Container from '../components/ui/Container.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import Button from '../components/ui/Button.astro';
+import StateBlock from '../components/content/StateBlock.astro';
+import ProjectCard from '../features/projects/ProjectCard.astro';
+
+interface Props {
+  projects: readonly Project[];
+}
+
+const { projects } = Astro.props;
+---
+
+<section class="py-16 sm:py-20">
+  <Container>
+    <SectionHeader
+      eyebrow="Proyectos"
+      title="Proyectos en Colombia"
+      description="MIDSUMMER DEBE PROPORCIONAR la descripción de esta sección. Por ahora se muestran registros de muestra, no instalaciones reales."
+      level={2}
+      class="reveal"
+    >
+      {projects.length > 0 && (
+        <div class="mt-2">
+          <Button href="/proyectos/" variant="outline" size="sm">
+            Ver todos los proyectos
+          </Button>
+        </div>
+      )}
+    </SectionHeader>
+
+    {projects.length === 0 ? (
+      <div class="mt-10">
+        <StateBlock />
+      </div>
+    ) : (
+      <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {projects.map((project) => (
+          <li class="reveal">
+            <ProjectCard project={project} />
+          </li>
+        ))}
+      </ul>
+    )}
+  </Container>
+</section>

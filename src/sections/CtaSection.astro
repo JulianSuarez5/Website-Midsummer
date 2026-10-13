@@ -1,0 +1,61 @@
+---
+/**
+ * Llamado a la acción de cierre.
+ *
+ * Aparece una vez por página, al final. Es el punto donde un visitante que
+ * llegó a leer termina descendiendo. El texto es provisional hasta que
+ * Midsummer defina el mensaje y el canal de contacto reales.
+ */
+import Button from '../components/ui/Button.astro';
+import Container from '../components/ui/Container.astro';
+import ContentPending from '../components/content/ContentPending.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  primaryLabel?: string;
+  primaryHref?: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+}
+
+const {
+  title = '¿Hablamos de tu proyecto?',
+  description = 'PENDIENTE: MIDSUMMER DEBE PROPORCIONAR el mensaje de contacto y el canal preferido (correo, formulario, teléfono o visita comercial).',
+  primaryLabel = 'Contactar al equipo',
+  primaryHref = '/contacto/',
+  secondaryLabel = 'Ver proyectos',
+  secondaryHref = '/proyectos/',
+} = Astro.props;
+---
+
+<section class="py-16 sm:py-20">
+  <Container>
+    <div class="reveal flex flex-col items-start gap-6 rounded-xl bg-neutral-900 p-8 sm:p-10 lg:flex-row lg:items-center lg:justify-between">
+      <div class="max-w-prose">
+        <h2 class="text-2xl text-neutral-50 sm:text-3xl">{title}</h2>
+        <p class="mt-3 text-neutral-300">{description}</p>
+        <div class="mt-4">
+          <ContentPending
+            display="inline"
+            text="Texto de contacto pendiente de aprobación"
+          />
+        </div>
+      </div>
+
+      <div class="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
+        <Button href={primaryHref} size="lg" class="w-full sm:w-auto">
+          {primaryLabel}
+        </Button>
+        <Button
+          href={secondaryHref}
+          size="lg"
+          variant="outline"
+          class="w-full border-neutral-600 text-neutral-100 hover:border-neutral-400 hover:text-white sm:w-auto"
+        >
+          {secondaryLabel}
+        </Button>
+      </div>
+    </div>
+  </Container>
+</section>

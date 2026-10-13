@@ -1,0 +1,72 @@
+---
+/**
+ * Encabezado interno de página.
+ *
+ * Un solo lugar para el título, la descripción y la ruta de navegación, de
+ * modo que todas las páginas interiores compartan la misma anatomía visual.
+ * El `h1` lo define esta sección: las páginas nunca agregan otro.
+ */
+import type { BreadcrumbItem } from '../lib/seo/jsonld';
+import Container from '../components/ui/Container.astro';
+import ContentPending from '../components/content/ContentPending.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Último elemento = página actual. Los anteriores son enlaces. */
+  breadcrumb?: readonly BreadcrumbItem[];
+  /** Muestra el marcador de contenido provisional bajo la descripción. */
+  pendingNote?: string;
+}
+
+const { title, description, breadcrumb = [], pendingNote } = Astro.props;
+const current = breadcrumb[breadcrumb.length - 1];
+const ancestors = breadcrumb.slice(0, -1);
+---
+
+<section class="border-b border-border bg-surface">
+  <Container class="py-10 sm:py-14">
+    {ancestors.length > 0 && (
+      <nav aria-label="Ruta de navegación" class="mb-4">
+        <ol class="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+          {ancestors.map((item, index) => (
+            <li class="flex items-center gap-1.5">
+              {index > 0 && (
+                <span aria-hidden="true" class="text-neutral-300">
+                  /
+                </span>
+              )}
+              <a href={item.path} class="hover:text-accent hover:underline">
+                {item.name}
+              </a>
+            </li>
+          ))}
+          {current && (
+            <li class="flex items-center gap-1.5">
+              <span aria-hidden="true" class="text-neutral-300">
+                /
+              </span>
+              <span aria-current="page" class="text-foreground">
+                {current.name}
+              </span>
+            </li>
+          )}
+        </ol>
+      </nav>
+    )}
+
+    <h1 class="max-w-3xl text-3xl sm:text-4xl">{title}</h1>
+
+    {description && (
+      <p class="mt-4 max-w-prose text-lg text-muted-foreground">{description}</p>
+    )}
+
+    {pendingNote && (
+      <div class="mt-5">
+        <ContentPending display="inline" text={pendingNote} />
+      </div>
+    )}
+
+    <slot />
+  </Container>
+</section>

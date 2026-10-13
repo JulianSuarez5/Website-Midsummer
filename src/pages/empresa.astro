@@ -1,0 +1,81 @@
+---
+/**
+ * Página institucional.
+ *
+ * Objetivo: explicar quién es Midsummer Colombia, cómo se relaciona con la casa
+ * matriz en Suecia y cuál es su presencia en el país.
+ *
+ * La información corporativa (historia, misión, visión, equipo) la entrega
+ * Midsummer. Hasta que llegue, cada bloque conserva su título y muestra el
+ * marcador de pendiente: así se ve la estructura acordada sin rellenar nada
+ * con suposiciones. En Sweden, estas páginas siguen siendo contenido editorial
+ * nuevo, no una traducción de la casa matriz.
+ */
+import BaseLayout from '../components/layout/BaseLayout.astro';
+import ContentSection from '../sections/ContentSection.astro';
+import CtaSection from '../sections/CtaSection.astro';
+import JsonLd from '../components/seo/JsonLd.astro';
+import PageHero from '../sections/PageHero.astro';
+import { PRIMARY_NAV } from '../config/nav.config';
+import { buildMeta } from '../lib/seo/meta';
+import { breadcrumbSchema } from '../lib/seo/jsonld';
+
+const path = '/empresa/';
+const navItem = PRIMARY_NAV.find((item) => item.href === path);
+const label = navItem?.label ?? 'Empresa';
+
+const meta = buildMeta({
+  path,
+  title: label,
+  description: navItem?.description,
+});
+
+const breadcrumb = [
+  { name: 'Inicio', path: '/' },
+  { name: label, path },
+];
+---
+
+<BaseLayout meta={meta} path={path}>
+  <Fragment slot="head">
+    <JsonLd data={breadcrumbSchema(breadcrumb)} />
+  </Fragment>
+
+  <PageHero
+    title={label}
+    description={navItem?.description}
+    breadcrumb={breadcrumb}
+    pendingNote="Historia, misión, visión y equipo pendientes de entrega y aprobación."
+  />
+
+  <ContentSection
+    eyebrow="Quiénes somos"
+    title="Historia y presencia en Colombia"
+    level={2}
+    pendingText="Historia de Midsummer Colombia: año de llegada al país, motivaciones de entrada y oficina."
+  />
+
+  <ContentSection
+    eyebrow="Identidad"
+    title="Misión y visión"
+    level={2}
+    pendingText="Misión y visión aprobadas por Midsummer Colombia."
+  />
+
+  <ContentSection
+    eyebrow="Casa matriz"
+    title="Relación con Midsummer Suecia"
+    level={2}
+    description="Midsummer Colombia opera como empresa del país, con marca de la casa matriz y capacidad de administración propia de sus contenidos."
+    pendingText="Texto institucional sobre la relación con la casa matriz: qué se hereda (marca, tecnología) y qué es propio del equipo en Colombia."
+  />
+
+  <ContentSection
+    eyebrow="Equipo"
+    title="Personas y roles"
+    level={2}
+    pendingText="Equipo_directorio en Colombia: nombres, cargos y fotografía (solo con autorización de cada persona)."
+  />
+
+  <CtaSection />
+</BaseLayout>

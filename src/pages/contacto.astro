@@ -1,0 +1,114 @@
+---
+/**
+ * Página de contacto.
+ *
+ * El formulario valida en el cliente con `contactSchema`, pero eso no sustituye
+ * la validación del servidor: cuando exista el endpoint, la misma esquema
+ * tendrá que correr allí, porque el cliente se puede saltarse.
+ *
+ * Los datos de contacto se leen del CMS. Mientras Midsummer no entregue correo,
+ * teléfono ni dirección, no se muestran: un dato de contacto equivocado
+ * desvía clientes.
+ */
+import BaseLayout from '../components/layout/BaseLayout.astro';
+import ContactForm from '../features/contact/ContactForm';
+import Container from '../components/ui/Container.astro';
+import JsonLd from '../components/seo/JsonLd.astro';
+import PageHero from '../sections/PageHero.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import StateBlock from '../components/content/StateBlock.astro';
+import { PRIMARY_NAV } from '../config/nav.config';
+import { buildMeta } from '../lib/seo/meta';
+import { breadcrumbSchema } from '../lib/seo/jsonld';
+import { content } from '../lib/cms/queries';
+import { t } from '../lib/i18n';
+
+const path = '/contacto/';
+const navItem = PRIMARY_NAV.find((item) => item.href === path);
+const label = navItem?.label ?? 'Contacto';
+
+const meta = buildMeta({
+  path,
+  title: label,
+  description: navItem?.description,
+});
+
+const breadcrumb = [
+  { name: 'Inicio', path: '/' },
+  { name: label, path },
+];
+
+const settings = await content.getSettings();
+
+const hasContactData =
+  settings.email !== '' || settings.phone !== null || settings.address !== null;
+---
+
+<BaseLayout meta={meta} path={path}>
+  <Fragment slot="head">
+    <JsonLd data={breadcrumbSchema(breadcrumb)} />
+  </Fragment>
+
+  <PageHero
+    title={label}
+    description={navItem?.description}
+    breadcrumb={breadcrumb}
+    pendingNote="El envío de mensajes es un prototipo: todavía no hay servidor que los reciba."
+  />
+
+  <section class="py-14 sm:py-18">
+    <Container>
+      <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div>
+          <SectionHeader eyebrow="Formulario" title={t.contact.formTitle} level={2} />
+          <div class="mt-8">
+            <ContactForm client:visible />
+          </div>
+        </div>
+
+        <aside>
+          <SectionHeader eyebrow="Directo" title="Datos de contacto" level={2} />
+
+          {hasContactData ? (
+            <address class="mt-6 space-y-4 text-sm not-italic">
+              {settings.email && (
+                <p>
+                  <span class="block text-muted-foreground">Correo</span>
+                  <a
+                    href={`mailto:${settings.email}`}
+                    class="text-accent underline underline-offset-2"
+                  >
+                    {settings.email}
+                  </a>
+                </p>
+              )}
+
+              {settings.phone && (
+                <p>
+                  <span class="block text-muted-foreground">Teléfono</span>
+                  <a
+                    href={`tel:${settings.phone.replace(/[^\d+]/g, '')}`}
+                    class="text-accent underline underline-offset-2"
+                  >
+                    {settings.phone}
+                  </a>
+                </p>
+              )}
+
+              {settings.address && (
+                <p class="text-muted-foreground">{settings.address}</p>
+              )}
+            </address>
+          ) : (
+            <div class="mt-6">
+              <StateBlock
+                title="Datos de contacto pendientes"
+                description="Midsummer debe entregar el correo comercial, el teléfono y la dirección de la oficina en Colombia antes de publicar esta información."
+              />
+            </div>
+          )}
+        </aside>
+      </div>
+    </Container>
+  </section>
+</BaseLayout>

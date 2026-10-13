@@ -1,0 +1,135 @@
+---
+/**
+ * Pie de página.
+ *
+ * Contiene las cuatro cosas que un visitante corporate busca al llegar al
+ * final: qué es esta empresa, a dónde ir, cómo contactarla y el aviso legal.
+ * Los enlaces a Suecia son institucionales, no técnicos: no hay dependencia.
+ */
+import { FOOTER_LEGAL, FOOTER_SECTIONS } from '../../config/nav.config';
+import { SITE } from '../../config/site.config';
+import { t } from '../../lib/i18n';
+import Container from '../ui/Container.astro';
+import Icon from '../ui/Icon.astro';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-24 border-t border-border bg-surface">
+  <Container width="wide">
+    <div class="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
+      <!-- Identidad -->
+      <div class="sm:col-span-2 lg:col-span-1">
+        <p class="font-semibold text-foreground">
+          {SITE.name}{' '}
+          <span class="font-normal text-muted-foreground">{SITE.market}</span>
+        </p>
+        <p class="mt-3 max-w-xs text-sm text-muted-foreground">
+          PENDIENTE: MIDSUMMER DEBE PROPORCIONAR el texto institucional que describe a
+          la empresa en Colombia.
+        </p>
+      </div>
+
+      <!-- Navegación -->
+      <nav aria-label={t.common.footerNavigation}>
+        <h2 class="text-sm font-semibold tracking-wide text-foreground uppercase">
+          Navegación
+        </h2>
+        <ul class="mt-4 flex flex-col gap-2.5">
+          {FOOTER_SECTIONS.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="text-sm text-muted-foreground no-underline transition-colors hover:text-accent"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <!-- Contacto -->
+      <div>
+        <h2 class="text-sm font-semibold tracking-wide text-foreground uppercase">
+          Contacto
+        </h2>
+        <ul class="mt-4 flex flex-col gap-2.5 text-sm text-muted-foreground">
+          <li>
+            {SITE.email.startsWith('PENDIENTE') ? (
+              <span class="rounded-sm border border-dashed border-solar-500 bg-solar-100 px-1.5 py-0.5 text-xs text-solar-900">
+                {SITE.email}
+              </span>
+            ) : (
+              <a href={`mailto:${SITE.email}`} class="hover:text-accent">
+                {SITE.email}
+              </a>
+            )}
+          </li>
+          <li>
+            PENDIENTE: MIDSUMMER DEBE PROPORCIONAR el teléfono, la dirección y los datos
+            de la razón social en Colombia.
+          </li>
+        </ul>
+      </div>
+
+      <!-- Institucional -->
+      <div>
+        <h2 class="text-sm font-semibold tracking-wide text-foreground uppercase">
+          Institucional
+        </h2>
+        <ul class="mt-4 flex flex-col gap-2.5">
+          <li>
+            <a
+              href={SITE.sweden.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 text-sm text-muted-foreground no-underline transition-colors hover:text-accent"
+            >
+              {SITE.sweden.label}
+              <Icon name="arrow-up-right" class="h-4 w-4" />
+            </a>
+          </li>
+          {SITE.social.map((item) => (
+            <li>
+              {item.href.startsWith('http') ? (
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-2 text-sm text-muted-foreground no-underline transition-colors hover:text-accent"
+                >
+                  <Icon name={item.icon} class="h-4 w-4" />
+                  {item.label.replace('Midsummer en ', '@')}
+                </a>
+              ) : (
+                <span class="rounded-sm border border-dashed border-solar-500 bg-solar-100 px-1.5 py-0.5 text-xs text-solar-900">
+                  {item.label} — URL PENDIENTE
+                </span>
+              )}
+            </li>
+          ))}
+          {FOOTER_LEGAL.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="text-sm text-muted-foreground no-underline transition-colors hover:text-accent"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3 border-t border-border py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+      <p>
+        © {year} {SITE.name} {SITE.market}. Todos los derechos reservados.
+      </p>
+      <p>
+        PENDIENTE: MIDSUMMER DEBE PROPORCIONAR los datos de la razón social y el NIT.
+      </p>
+    </div>
+  </Container>
+</footer>

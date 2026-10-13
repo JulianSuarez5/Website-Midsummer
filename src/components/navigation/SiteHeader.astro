@@ -1,0 +1,98 @@
+---
+/**
+ * Encabezado del sitio.
+ *
+ * Responsabilidades: identidad, navegación principal y llamada a la acción.
+ * El offset por el encabezado fijo se resuelve con `scroll-padding-top` en
+ * global.css, no con márgenes dispersos por las secciones.
+ */
+import { PRIMARY_NAV } from '../../config/nav.config';
+import { SITE } from '../../config/site.config';
+import { t } from '../../lib/i18n';
+import Button from '../ui/Button.astro';
+import MobileNav from './MobileNav';
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+const isHome = currentPath === '/';
+
+/** La llamada a la acción ya está en la barra; no se repite en la lista. */
+const navItems = PRIMARY_NAV.filter((item) => item.href !== '/contacto/');
+
+/**
+ * Marca el enlace activo. La portada se compara exacta porque `startsWith('/')`
+ * daría coincidencia en todas las rutas.
+ */
+const isCurrent = (href: string) =>
+  href === '/' ? isHome : currentPath.startsWith(href);
+---
+
+<header class="sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80">
+  <div class="shell flex h-[var(--header-height)] items-center justify-between gap-4">
+    <!--
+      En la portada el logotipo es un enlace a la propia portada; en el resto
+      de páginas no lo es. Un enlace a la página actual es ruido para el
+      lector de pantalla.
+    -->
+    <a
+      href="/"
+      class="flex items-center gap-2.5 font-semibold tracking-tight text-foreground no-underline"
+      aria-label={`${SITE.name} ${SITE.market} — ir a la portada`}
+    >
+      <span
+        class="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-accent-contrast"
+        aria-hidden="true"
+      >
+        <span class="text-sm font-bold">M</span>
+      </span>
+      <span class="text-base">
+        {SITE.name}
+        <span class="ml-1.5 font-normal text-muted-foreground">{SITE.market}</span>
+      </span>
+    </a>
+
+    <div class="hidden md:block">
+      <nav aria-label={t.common.mainNavigation}>
+        <ul class="flex items-center gap-0.5">
+          {navItems.map((item) => {
+            const current = isCurrent(item.href);
+            return (
+              <li>
+                <a
+                  href={item.href}
+                  aria-current={current ? 'page' : undefined}
+                  class:list={[
+                    'inline-block rounded-md px-3 py-2 text-sm font-medium no-underline transition-colors duration-150',
+                    current
+                      ? 'bg-brand-50 text-accent'
+                      : 'text-neutral-700 hover:bg-neutral-100 hover:text-foreground',
+                  ]}
+                >
+                  {item.label}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <div class="hidden md:block">
+        <Button href="/contacto/" size="sm">
+          {t.actions.contact}
+        </Button>
+      </div>
+
+      <MobileNav
+        client:idle
+        items={PRIMARY_NAV}
+        currentPath={currentPath}
+        contactHref="/contacto/"
+      />
+    </div>
+  </div>
+</header>

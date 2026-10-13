@@ -1,0 +1,54 @@
+---
+/**
+ * Marcador visual de contenido pendiente de aprobación.
+ *
+ * Regla de proyecto: nunca se inventa información de Midsummer. Cuando un
+ * texto, cifra o dato no ha sido entregado, se renderiza el marcador
+ * `[CONTENIDO PENDIENTE DE APROBACIÓN]` en lugar de inventarlo.
+ *
+ * En producción (`import.meta.env.PROD`) el marcador se reduce a un comentario
+ * HTML: no se dibuja, no es audible para el lector de pantalla y no lo indexa
+ * un buscador. En desarrollo se muestra siempre, para que la lista de pendientes
+ * sea visible mientras se construye el sitio.
+ */
+import { SITE } from '../../config/site.config';
+
+interface Props {
+  /** Texto provisional a mostrar. */
+  text?: string;
+  /** `inline` para chips, `block` para párrafos o tarjetas. */
+  display?: 'inline' | 'block';
+  class?: string;
+}
+
+const {
+  text = SITE.pendingContentLabel,
+  display = 'block',
+  class: extra = '',
+} = Astro.props;
+
+const isProduction = import.meta.env.PROD;
+
+/**
+ * Un comentario HTML no admite `--` en su interior: cerraría la etiqueta antes
+ * de tiempo. Se sustituye para que el texto pendiente nunca rompa el documento.
+ */
+const asComment = `<!-- ${text.replace(/--+/g, '-')} -->`;
+---
+
+{isProduction ? (
+  <Fragment set:html={asComment} />
+) : (
+  <span
+    class:list={[
+      'rounded-sm border border-dashed border-solar-500 bg-solar-100 px-2 py-0.5',
+      'font-sans text-xs font-medium tracking-wide text-solar-900',
+      display === 'block' && 'block w-fit',
+      display === 'inline' && 'inline',
+      extra,
+    ]}
+    data-pending-content
+  >
+    {text}
+  </span>
+)}

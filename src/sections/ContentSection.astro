@@ -1,0 +1,65 @@
+---
+/**
+ * Sección de contenido largo (texto corrido).
+ *
+ * Existe para que las páginas institucionales y las fichas de detalle no
+ * repitan el mismo bloque de encabezado + cuerpo. Si el CMS entrega el texto
+ * ya formateado se renderiza; si no, queda visible el marcador de pendiente,
+ * que es la forma de señalar qué falta por entregar sin inventarlo.
+ *
+ * `set:html` renderiza el HTML que devuelve WordPress. Es contenido redactado
+ * por Midsummer en su propio panel, no entrada de visitante, así que se acepta
+ * aquí y únicamente aquí para no repetir la excepción en cada página.
+ */
+import Container from '../components/ui/Container.astro';
+import ContentPending from '../components/content/ContentPending.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+
+interface Props {
+  title: string;
+  eyebrow?: string;
+  description?: string;
+  /** HTML del CMS. Si falta, se muestra el marcador de pendiente. */
+  body?: string | null;
+  /** Etiqueta del marcador cuando no hay cuerpo. */
+  pendingText?: string;
+  /** Respeta la jerarquía de encabezados de la página que lo usa. */
+  level?: 2 | 3;
+  id?: string;
+  class?: string;
+}
+
+const {
+  title,
+  eyebrow,
+  description,
+  body,
+  pendingText,
+  level = 2,
+  id,
+  class: extra = '',
+} = Astro.props;
+
+const hasBody = typeof body === 'string' && body.trim().length > 0;
+---
+
+<section class:list={['py-14 sm:py-18', extra]} id={id}>
+  <Container width="prose">
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title}
+      description={description}
+      level={level}
+    />
+
+    {hasBody ? (
+      <div class="prose-content mt-8" set:html={body} />
+    ) : (
+      <div class="mt-8">
+        <ContentPending display="block" text={pendingText} />
+      </div>
+    )}
+
+    <slot />
+  </Container>
+</section>

@@ -1,0 +1,103 @@
+---
+/**
+ * Ficha de una solución.
+ *
+ * Ruta dinámica: las páginas se generan desde lo que el CMS tenga publicado.
+ * Con `CMS_STRICT=true` un fallo del CMS detiene el build en lugar de publicar
+ * un catálogo vacío; con `CMS_STRICT=false` el listado simplemente no aparece
+ * en el sitemap de esa compilación.
+ */
+import BaseLayout from '../../components/layout/BaseLayout.astro';
+import Container from '../../components/ui/Container.astro';
+import JsonLd from '../../components/seo/JsonLd.astro';
+import PageHero from '../../sections/PageHero.astro';
+import StateBlock from '../../components/content/StateBlock.astro';
+import { buildMeta } from '../../lib/seo/meta';
+import { breadcrumbSchema } from '../../lib/seo/jsonld';
+import { content } from '../../lib/cms/queries';
+import type { Solution } from '../../lib/cms/types';
+
+export async function getStaticPaths() {
+  const solutions = await content.listSolutions();
+
+  return solutions.map((solution) => ({
+    params: { slug: solution.slug },
+    props: { solution },
+  }));
+}
+
+interface Props {
+  solution: Solution;
+}
+
+const { solution } = Astro.props;
+
+const path = `/soluciones/${solution.slug}/`;
+
+const meta = buildMeta({
+  path,
+  title: solution.title,
+  description: solution.summary,
+  seo: solution.seo,
+  ogImage: solution.image?.url ?? null,
+});
+
+const breadcrumb = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Soluciones', path: '/soluciones/' },
+  { name: solution.title, path },
+];
+
+const hasBody = typeof solution.body === 'string' && solution.body.trim().length > 0;
+---
+
+<BaseLayout meta={meta} path={path}>
+  <Fragment slot="head">
+    <JsonLd data={breadcrumbSchema(breadcrumb)} />
+  </Fragment>
+
+  <PageHero
+    title={solution.title}
+    description={solution.summary}
+    breadcrumb={breadcrumb}
+  />
+
+  {solution.image && (
+    <Container class="pt-10">
+      <img
+        src={solution.image.url}
+        alt={solution.image.alt}
+        width={solution.image.width ?? undefined}
+        height={solution.image.height ?? undefined}
+        decoding="async"
+        class="aspect-wide w-full rounded-lg object-cover"
+      />
+    </Container>
+  )}
+
+  <section class="py-14 sm:py-18">
+    <Container width="prose">
+      {hasBody ? (
+        <div class="prose-content" set:html={solution.body} />
+      ) : (
+        <StateBlock
+          title="Ficha sin descripción"
+          description="Midsummer debe publicar la descripción de esta solución: aplicaciones, ventajas y especificaciones."
+        />
+      )}
+
+      {solution.applications.length > 0 && (
+        <div class="mt-10">
+          <h2 class="text-xl">Aplicaciones</h2>
+          <ul class="mt-4 flex flex-wrap gap-2">
+            {solution.applications.map((application) => (
+              <li class="rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-700">
+                {application}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </Container>
+  </section>
+</BaseLayout>

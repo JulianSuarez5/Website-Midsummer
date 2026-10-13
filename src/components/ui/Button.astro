@@ -1,0 +1,72 @@
+---
+/**
+ * Botón y enlace con apariencia de botón.
+ *
+ * Un solo componente evita mantener tres variantes casi idénticas en cada
+ * sección. Se apoya en elementos semánticos reales (`<a>` y `<button>`) en
+ * lugar de `div` con manejadores.
+ *
+ * Uso:
+ *   <Button href="/contacto/">Contáctanos</Button>
+ *   <Button href="/contacto/" variant="outline" size="lg">Más información</Button>
+ *   <Button type="submit">Enviar</Button>
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+type Variant = 'primary' | 'secondary' | 'outline' | 'ghost';
+type Size = 'sm' | 'md' | 'lg';
+
+interface Props extends HTMLAttributes<'button'> {
+  /** Si se define, se renderiza un `<a>` en lugar de un `<button>`. */
+  href?: string;
+  variant?: Variant;
+  size?: Size;
+  /** Abre en pestaña nueva con `rel` seguro. */
+  external?: boolean;
+  disabled?: boolean;
+  class?: string;
+}
+
+const {
+  href,
+  variant = 'primary',
+  size = 'md',
+  external = false,
+  disabled = false,
+  class: extra = '',
+  ...rest
+} = Astro.props;
+
+const variants: Record<Variant, string> = {
+  primary: 'bg-accent text-accent-contrast hover:bg-accent-hover',
+  secondary: 'bg-neutral-900 text-neutral-50 hover:bg-neutral-800',
+  outline: 'border border-border-strong hover:border-accent hover:text-accent',
+  ghost: 'hover:bg-neutral-100',
+};
+
+const sizes: Record<Size, string> = {
+  sm: 'text-sm px-3.5 py-2',
+  md: 'text-sm px-5 py-2.5',
+  lg: 'text-base px-6 py-3',
+};
+
+const base =
+  'inline-flex items-center justify-center gap-2 rounded-md font-semibold no-underline ' +
+  'transition-colors duration-150 disabled:pointer-events-none disabled:opacity-50';
+
+const className = `${base} ${variants[variant]} ${sizes[size]} ${extra}`.trim();
+---
+
+{href ? (
+  <a
+    href={href}
+    class={className}
+    {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+  >
+    <slot />
+  </a>
+) : (
+  <button type="button" class={className} disabled={disabled} {...rest}>
+    <slot />
+  </button>
+)}

@@ -1,0 +1,67 @@
+---
+/**
+ * Sección de soluciones / productos.
+ *
+ * Encabezado de sección reutilizado, retícula de tarjetas y enlace a la página
+ * completa. Si no hay soluciones desde el CMS, muestra el estado vacío en
+ * lugar de una retícula vacía.
+ */
+import type { Solution } from '../lib/cms/types';
+import Container from '../components/ui/Container.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import Button from '../components/ui/Button.astro';
+import StateBlock from '../components/content/StateBlock.astro';
+import SolutionCard from '../features/solutions/SolutionCard.astro';
+import { t } from '../lib/i18n';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  solutions: readonly Solution[];
+  /** Oculta el enlace "ver todo" en listados que ya están dentro de la página. */
+  showLink?: boolean;
+}
+
+const {
+  eyebrow = 'Soluciones',
+  title,
+  description,
+  solutions,
+  showLink = true,
+} = Astro.props;
+---
+
+<section class="border-y border-border bg-surface py-16 sm:py-20">
+  <Container>
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title}
+      description={description}
+      level={2}
+      class="reveal"
+    >
+      {showLink && solutions.length > 0 && (
+        <div class="mt-2">
+          <Button href="/soluciones/" variant="outline" size="sm">
+            {t.actions.viewAll}
+          </Button>
+        </div>
+      )}
+    </SectionHeader>
+
+    {solutions.length === 0 ? (
+      <div class="mt-10">
+        <StateBlock />
+      </div>
+    ) : (
+      <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {solutions.map((solution) => (
+          <li class="reveal">
+            <SolutionCard solution={solution} />
+          </li>
+        ))}
+      </ul>
+    )}
+  </Container>
+</section>

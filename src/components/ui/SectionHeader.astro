@@ -1,0 +1,64 @@
+---
+/**
+ * Encabezado de sección.
+ *
+ * Centraliza el patrón repetido en todo el sitio: etiqueta superior, título,
+ * texto de apoyo y llamada a la acción opcional. Usar esto en todas las
+ * secciones es lo que hace que la jerarquía visual se sienta coherente en
+ * lugar de improvisada sección por sección.
+ */
+interface Props {
+  /** Etiqueta corta sobre el título. Ej: "TECNOLOGÍA". */
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  /** Alineación. `center` se usa en secciones de transición (CTA). */
+  align?: 'start' | 'center';
+  /** Nivel del encabezado. Debe respetar la jerarquía de la página. */
+  level?: 2 | 3;
+  class?: string;
+  id?: string;
+}
+const {
+  eyebrow,
+  title,
+  description,
+  align = 'start',
+  level = 2,
+  class: extra = '',
+  id,
+} = Astro.props;
+
+const Heading = `h${level}` as 'h2' | 'h3';
+---
+
+<div
+  class:list={[
+    'flex flex-col gap-3',
+    align === 'center' && 'items-center text-center',
+    extra,
+  ]}
+>
+  {eyebrow && (
+    <p class="text-xs font-semibold tracking-[0.14em] text-accent uppercase">
+      {eyebrow}
+    </p>
+  )}
+
+  <Heading class="text-3xl" id={id}>
+    {title}
+  </Heading>
+
+  {description && (
+    <p
+      class:list={[
+        'max-w-prose text-muted-foreground',
+        align === 'center' && 'mx-auto text-lg',
+      ]}
+    >
+      {description}
+    </p>
+  )}
+
+  <slot />
+</div>

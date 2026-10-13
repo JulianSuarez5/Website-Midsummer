@@ -1,0 +1,41 @@
+---
+/**
+ * Estado vacío o de error de una sección.
+ *
+ * Existe porque un sitio corporativo termina teniendo secciones sin datos:
+ * todavía no hay noticias, todavía no hay proyectos con ubicación publicada.
+ * Mostrar "No pudimos cargar" cuando en realidad no hay contenido es un
+ * error de UX, y mostrar un espacio en blanco es un error de diseño.
+ * Este componente distingue ambos casos sin inventar contenido.
+ */
+interface Props {
+  variant?: 'empty' | 'error';
+  title?: string;
+  description?: string;
+  class?: string;
+}
+
+const { variant = 'empty', class: extra = '' } = Astro.props;
+
+const isError = variant === 'error';
+
+const title = Astro.props.title ?? (isError ? 'Error' : 'Contenido pendiente');
+const description =
+  Astro.props.description ??
+  (isError
+    ? 'Intenta de nuevo en unos minutos.'
+    : 'Esta sección se completará cuando Midsummer publique el contenido correspondiente.');
+---
+
+<div
+  class:list={[
+    'rounded-lg border border-dashed px-6 py-12 text-center',
+    isError ? 'border-danger/40 bg-danger/5' : 'border-border bg-surface',
+    extra,
+  ]}
+  role={isError ? 'alert' : 'status'}
+>
+  <p class="font-semibold text-foreground">{title}</p>
+  <p class="mx-auto mt-2 max-w-prose text-sm text-muted-foreground">{description}</p>
+  <slot />
+</div>
